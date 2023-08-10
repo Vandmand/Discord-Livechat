@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "builds": [
+      {
+          "src": "./build/webhandler.js",
+          "use": "@vercel/node"
+      }
+  ],
+  "routes": [
+      {
+          "src": "/(.*)",
+          "dest": "/"
+      }
+  ]
+}
