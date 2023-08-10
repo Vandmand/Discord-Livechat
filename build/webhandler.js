@@ -44,3 +44,6 @@ App.get('/msg-stream', (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.write(message);
     });
 }));
+App.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send('This is the api');
+}));

@@ -39,3 +39,7 @@ App.get('/msg-stream', async (req, res) => {
     res.write(message);
   })
 })
+
+App.get('/', async (req, res) => {
+  res.send('This is the api')
+})
