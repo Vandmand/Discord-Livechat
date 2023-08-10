@@ -40,6 +40,6 @@ App.get('/msg-stream', async (req, res) => {
   })
 })
 
-App.get('/', async (req, res) => {
-  res.send('This is the api')
+App.get('/test', async (req, res) => {
+  res.status(200).send('This is the api')
 })

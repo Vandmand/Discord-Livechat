@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc -w",
-    "start": "nodemon build/webhandler.js"
+    "dev": "nodemon build/webhandler.js",
+    "start": "node build/webhandler.js"
   },
   "keywords": [],
   "author": "",
