@@ -5,21 +5,24 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc -w",
-    "dev": "nodemon build/webhandler.js",
-    "start": "node build/webhandler.js"
+    "dev": "nodemon build/index.js",
+    "start": "node build/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/node": "^20.4.8",
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "discord-api-types": "^0.37.52",
     "discord.js": "^14.12.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "node": "^20.5.0",
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "ws": "^8.13.0"
   }
 }

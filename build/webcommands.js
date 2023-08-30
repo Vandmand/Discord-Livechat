@@ -8,26 +8,71 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DiscordMessage = void 0;
-const main_1 = require("./main");
-const DiscordMessage = (from, body) => __awaiter(void 0, void 0, void 0, function* () {
-    //TODO Guilds, channels, and pings in variables
-    const req = (yield main_1.client.rest.get('/guilds/1125181937535959172/channels'));
-    const channelExists = req.find((channel) => channel.name == from.toLowerCase());
-    if (!channelExists) {
-        const newChannel = yield main_1.client.rest.post('/guilds/1125181937535959172/channels', {
-            body: {
-                name: from,
-            }
-        });
-        main_1.client.rest.post(`/channels/${newChannel.id}/messages`, {
-            body: { content: `# NEW MESSAGE: From ${from} \n <@615477234072813569>` }
-        });
-        return;
-    }
-    main_1.client.rest.post(`/channels/${channelExists.id}/messages`, {
-        body: { content: `${body} \n <@615477234072813569>` }
-    });
+exports.handleData = exports.deleteChannel = exports.getMessage = exports.initConnection = void 0;
+const bot_1 = require("./bot");
+const apiconfig_json_1 = __importDefault(require("./apiconfig.json"));
+/**
+ * Creates a new discord channel with random name
+ * @returns Discord channel
+ */
+const initConnection = () => __awaiter(void 0, void 0, void 0, function* () {
+    const randomNumber = Math.floor(Math.random() * 10000);
+    const newChannel = (yield bot_1.client.rest.post(`/guilds/${apiconfig_json_1.default.guildID}/channels`, {
+        body: {
+            name: "New Connection" + randomNumber,
+        },
+    }));
+    return newChannel;
 });
-exports.DiscordMessage = DiscordMessage;
+exports.initConnection = initConnection;
+/**
+ * Gets last message in channel
+ * @param id Channel id
+ * @returns message object
+ */
+const getMessage = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    return bot_1.client.rest.get(`/channels/${id}/messages`, { body: { limit: 1 } });
+});
+exports.getMessage = getMessage;
+/**
+ * Deletes channel
+ * @param id Channel id
+ */
+const deleteChannel = (id) => {
+    return bot_1.client.rest.delete(`/channels/${id}`);
+};
+exports.deleteChannel = deleteChannel;
+const discordMessage = (id, message) => __awaiter(void 0, void 0, void 0, function* () {
+    const channel = yield bot_1.client.rest.get(`/channels/${id}`);
+    if (!channel) {
+        throw new Error("No channel with that id");
+    }
+    bot_1.client.rest.post(`/channels/${id}/messages`, {
+        body: { content: message },
+    });
+    return;
+});
+const updateName = (id, name) => __awaiter(void 0, void 0, void 0, function* () {
+    return bot_1.client.rest.patch(`/channels/${id}`, { body: { name: name } });
+});
+const getPresence = (guildID) => {
+    bot_1.client.rest.get(`/guilds/${guildID}/members`).then((members) => { console.log(members); });
+};
+getPresence(apiconfig_json_1.default.guildID);
+const handleData = (socket, data) => {
+    switch (data.command) {
+        case "message":
+            return discordMessage(socket.id, data.body.message);
+        case "update-name":
+            return updateName(socket.id, data.body.name);
+        case "close":
+            break;
+        default:
+            throw new Error("No command match");
+    }
+};
+exports.handleData = handleData;

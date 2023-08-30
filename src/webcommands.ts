@@ -1,25 +1,82 @@
-import { client } from "./main"
+import { client } from "./bot";
+import Config from "./apiconfig.json";
+import { Person } from ".";
+import { Channel } from "discord.js";
 
-export const DiscordMessage = async (from: string, body: string ) => {
+/**
+ * Creates a new discord channel with random name
+ * @returns Discord channel
+ */
+export const initConnection = async () => {
+  const randomNumber = Math.floor(Math.random() * 10000);
 
-  //TODO Guilds, channels, and pings in variables
-
-  const req = (await client.rest.get('/guilds/1125181937535959172/channels')) as any[]
-  const channelExists = req.find((channel) => channel.name == from.toLowerCase());
-
-  if(!channelExists) {
-    const newChannel = await client.rest.post('/guilds/1125181937535959172/channels', {
+  const newChannel = (await client.rest.post(
+    `/guilds/${Config.guildID}/channels`,
+    {
       body: {
-        name: from,
-      }
-    }) as any
-    client.rest.post(`/channels/${newChannel.id}/messages`, {
-      body: {content: `# NEW MESSAGE: From ${from} \n <@615477234072813569>`}
-    });
+        name: "New Connection" + randomNumber,
+      },
+    }
+  )) as Channel;
 
-    return
-  } 
-  client.rest.post(`/channels/${channelExists.id}/messages`, {
-    body: {content: `${body} \n <@615477234072813569>`}
-  });
+  return newChannel;
+};
+
+/**
+ * Gets last message in channel
+ * @param id Channel id
+ * @returns message object
+ */
+
+export const getMessage = async (id: string) => {
+  return client.rest.get(`/channels/${id}/messages`, {body: {limit: 1}})
 }
+
+/**
+ * Deletes channel
+ * @param id Channel id
+ */
+
+export const deleteChannel = (id: string) => {
+ return client.rest.delete(`/channels/${id}`)
+}
+
+const discordMessage = async (id: string, message: string) => {
+  const channel = await client.rest.get(`/channels/${id}`);
+  if (!channel) {
+    throw new Error("No channel with that id");
+  }
+
+  client.rest.post(`/channels/${id}/messages`, {
+    body: { content: message },
+  });
+
+  return;
+};
+
+const updateName = async (id: string, name: string ) => {
+  return client.rest.patch(`/channels/${id}`, {body: {name: name}})
+}
+
+const getPresence = (guildID: string) => {
+  client.rest.get(`/guilds/${guildID}/members`).then(
+    (members) => {console.log(members)}
+  )
+  
+}
+
+getPresence(Config.guildID);
+
+export const handleData = (socket: Person, data: any) => {
+  switch (data.command) {
+    case "message":
+      return discordMessage(socket.id, data.body.message);
+    case "update-name":
+      return updateName(socket.id, data.body.name);
+    case "close":
+      break;
+
+    default:
+      throw new Error("No command match");
+  }
+};

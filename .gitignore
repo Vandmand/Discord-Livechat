@@ -126,3 +126,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .vercel
+
+apiconfig.json
+*.dev.ts
+*.dev.js

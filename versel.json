@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "builds": [
-      {
-          "src": "./build/webhandler.js",
-          "use": "@vercel/node"
-      }
-  ],
+  "framework": "other",
+
+  "functions": {
+    "build/webhandler.js": {
+      "maxDuration": 10
+    }
+  },
   "routes": [
       {
           "src": "/(.*)",
